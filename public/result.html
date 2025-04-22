@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Risk Assessment Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #3a6ea5;
+            --secondary-color: #52b788;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --white: #ffffff;
+            --form-bg: #f9f9f9;
+            --border-color: #ddd;
+            --active-color: #4a89dc;
+            --completed-color: #52b788;
+            --preview-color: #f0ad4e;
+            --marker-border: #ccc;
+            --section-background: #f4f7fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .results-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .metrics {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background-color: var(--section-background);
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .metric-title {
+            font-size: 1.1rem;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .investor-profile {
+            background-color: #f5f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .profile-description {
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .chart-box {
+            width: 100%;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .full-width {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            height: 400px; /* 让图表更高一些 */
+            margin-bottom: 10px;
+        }
+
+        .allocation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .allocation-table th,
+        .allocation-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .allocation-table th {
+            background-color: var(--section-background);
+            font-weight: 600;
+        }
+
+        .allocation-table tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+
+        .allocation-table tr.total {
+            font-weight: bold;
+            background-color: #f0f4f8;
+        }
+
+        .negative {
+            color: #dc3545;
+        }
+
+        .gauge-container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .gauge {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .gauge-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .controls button {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #2d5a8a;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--dark-gray);
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .personal-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--section-background);
+            border-radius: 8px;
+        }
+
+        .personal-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: var(--dark-gray);
+        }
+
+        .timestamp {
+            text-align: right;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .investment-amount-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: var(--section-background);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .investment-amount-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            min-width: 150px;
+        }
+
+        .investment-amount-input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            width: 150px;
+            font-size: 1rem;
+        }
+
+        .table-header-currency {
+            font-weight: normal;
+            font-size: 0.85rem;
+            margin-left: 5px;
+            color: var(--dark-gray);
+        }
+
+        /* Added styles for expected returns section */
+        .expected-returns {
+            background-color: var(--section-background);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .returns-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .returns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .returns-item {
+            padding: 15px;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .returns-label {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .returns-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .highlight-value {
+            color: #2c7be5;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .metrics {
+                flex-direction: column;
+            }
+
+            .info-row {
+                flex-direction: column;
+            }
+
+            .info-label {
+                margin-bottom: 4px;
+            }
+
+            .investment-amount-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .returns-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-img">
+                    <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="20" r="18" fill="#f0f0f0" stroke="#3a6ea5" stroke-width="2"/>
+                        <path d="M15,25 L25,15 M15,15 L25,25" stroke="#3a6ea5" stroke-width="2"/>
+                        <circle cx="20" cy="20" r="5" fill="#52b788"/>
+                    </svg>
+                </div>
+                <div class="logo-text">Risk Assessment Results</div>
+            </div>
+            <a href="index.html" class="back-link">← Back to Assessment</a>
+        </div>
+    </header>
+
+    <div class="container" id="results-container">
+        <div id="loading-container" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading assessment data...</p>
+        </div>
+
+        <div id="error-container" style="display: none;">
+            <div class="error-message">
+                <h2>No Assessment Data Found</h2>
+                <p id="error-message">You need to complete the risk assessment first to view your results.</p>
+                <div class="controls">
+                    <button onclick="window.location.href='index.html'">Start Assessment</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="results-content" style="display: none;">
+            <div class="results-card">
+                <h2 class="section-title">Your Risk Assessment Results</h2>
+                <div class="timestamp" id="assessment-time">Assessment Date: N/A</div>
+                
+                <div class="personal-info" id="personal-info-section">
+                    <h3>Personal Information</h3>
+                    <!-- Will be filled by JavaScript -->
+                </div>
+                
+                <div class="metrics">
+                    <div class="metric-card">
+                        <div class="metric-title">Risk Score</div>
+                        <div class="metric-value" id="risk-score">85</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Risk Aversion (A)</div>
+                        <div class="metric-value" id="risk-aversion">2.5</div>
+                        <div class="gauge-container">
+                            <div class="gauge" aria-valuenow="0" aria-valuemin="1" aria-valuemax="10">
+                                <div class="gauge-fill" id="gauge-fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="gauge-labels">
+                                <span>Risk Seeking (1)</span>
+                                <span>Risk Averse (10)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="investor-profile">
+                    <h3 class="profile-title" id="investor-type">Aggressive Investor</h3>
+                    <p class="profile-description" id="investor-description">
+                        You are willing to take higher risks for potentially higher returns, focusing on maximizing growth.
+                    </p>
+                </div>
+                
+                <div class="investment-amount-container">
+                    <div class="investment-amount-label">Investment Amount (SGD):</div>
+                    <input type="number" id="investment-amount" class="investment-amount-input" value="1000" min="100" step="100">
+                    <span>(Changes will automatically update allocation tables)</span>
+                </div>
+            </div>
+
+            <div class="results-card">
+                <h2 class="section-title">Portfolio Allocation - With Short Selling</h2>
+                
+                <!-- Added Expected Returns Section -->
+                <div class="expected-returns" id="with-short-returns">
+                    <h3 class="returns-title">Expected Returns</h3>
+                    <div class="returns-grid">
+                        <div class="returns-item">
+                            <div class="returns-label">Risk-Free Rate (Rf)</div>
+                            <div class="returns-value" id="with-short-rf">2.50%</div>
+                        </div>
+                        <div class="returns-item">
+                            <div class="returns-label">Market Return (Rm)</div>
+                            <div class="returns-value" id="with-short-erm">31.07%</div>
+                        </div>
+                        <div class="returns-item">
+                            <div class="returns-label">Market Volatility (σm)</div>
+                            <div class="returns-value" id="with-short-sigma">25.46%</div>
+                        </div>
+                        <div class="returns-item">
+                            <div class="returns-label">Expected Portfolio Return</div>
+                            <div class="returns-value highlight-value" id="with-short-portfolio-return">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-box full-width">
+                    <h3 class="chart-title">Fund Allocation</h3>
+                    <div class="canvas-container">
+                        <canvas id="with-short-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-box full-width">
+                    <h3 class="chart-title">Allocation Table</h3>
+                    <table class="allocation-table" id="with-short-table">
+                        <thead>
+                            <tr>
+                                <th>Fund/Asset</th>
+                                <th>Weight (%)</th>
+                                <th>Amount (SGD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="with-short-table-body">
+                            <!-- Data will be filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="results-card">
+                <h2 class="section-title">Portfolio Allocation - Without Short Selling</h2>
+                
+                <!-- Added Expected Returns Section -->
+                <div class="expected-returns" id="without-short-returns">
+                    <h3 class="returns-title">Expected Returns</h3>
+                    <div class="returns-grid">
+                        <div class="returns-item">
+                            <div class="returns-label">Risk-Free Rate (Rf)</div>
+                            <div class="returns-value" id="without-short-rf">2.50%</div>
+                        </div>
+                        <div class="returns-item">
+                            <div class="returns-label">Market Return (Rm)</div>
+                            <div class="returns-value" id="without-short-erm">17.49%</div>
+                        </div>
+                        <div class="returns-item">
+                            <div class="returns-label">Market Volatility (σm)</div>
+                            <div class="returns-value" id="without-short-sigma">17.68%</div>
+                        </div>
+                        <div class="returns-item">
+                            <div class="returns-label">Expected Portfolio Return</div>
+                            <div class="returns-value highlight-value" id="without-short-portfolio-return">--</div>
+                        </div>
+                    </div>
+                </div>
+                                <div class="chart-box full-width">
+                    <h3 class="chart-title">Fund Allocation</h3>
+                    <div class="canvas-container">
+                        <canvas id="without-short-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-box full-width">
+                    <h3 class="chart-title">Allocation Table</h3>
+                    <table class="allocation-table" id="without-short-table">
+                        <thead>
+                            <tr>
+                                <th>Fund/Asset</th>
+                                <th>Weight (%)</th>
+                                <th>Amount (SGD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="without-short-table-body">
+                            <!-- Data will be filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="download-btn">Download Results (JSON)</button>
+                <button id="retake-btn" onclick="window.location.href='index.html'">Retake Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let assessmentData = null;
+        let originalAssessmentData = null; // Store original data for table updates
+        let investmentAmount = 1000;
+        let withShortChart = null;
+        let withoutShortChart = null;
+
+        // Added expected returns data
+        const expectedReturnsData = {
+            "WITH_SHORT_SELL": {
+                "R_f": 0.025,
+                "E_rm": 0.3107265483510059,
+                "sigma_m": 0.2546139112923105
+            },
+            "WITHOUT_SHORT_SELL": {
+                "R_f": 0.025,
+                "E_rm": 0.1748614659499546,
+                "sigma_m": 0.17681000084665968
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up expected returns display
+            displayExpectedReturns();
+            
+            // Fetch the latest assessment data from the server
+            fetchLatestAssessment();
+            
+            // Set up download button
+            document.getElementById('download-btn').addEventListener('click', () => {
+                if (assessmentData) {
+                    downloadResults(assessmentData);
+                }
+            });
+            
+            // Set up investment amount input
+            const investmentInput = document.getElementById('investment-amount');
+            investmentInput.addEventListener('input', function() {
+                if (this.value && !isNaN(parseFloat(this.value)) && parseFloat(this.value) > 0) {
+                    investmentAmount = parseFloat(this.value);
+                    console.log("Investment amount changed to:", investmentAmount);
+                    if (assessmentData && assessmentData.portfolioAllocation) {
+                        updateAllocationTables();
+                        updatePortfolioReturns();
+                    }
+                }
+            });
+        });
+
+        // Added function to display expected returns
+        function displayExpectedReturns() {
+            // With short selling
+            document.getElementById('with-short-rf').textContent = formatPercentage(expectedReturnsData.WITH_SHORT_SELL.R_f);
+            document.getElementById('with-short-erm').textContent = formatPercentage(expectedReturnsData.WITH_SHORT_SELL.E_rm);
+            document.getElementById('with-short-sigma').textContent = formatPercentage(expectedReturnsData.WITH_SHORT_SELL.sigma_m);
+            
+            // Without short selling
+            document.getElementById('without-short-rf').textContent = formatPercentage(expectedReturnsData.WITHOUT_SHORT_SELL.R_f);
+            document.getElementById('without-short-erm').textContent = formatPercentage(expectedReturnsData.WITHOUT_SHORT_SELL.E_rm);
+            document.getElementById('without-short-sigma').textContent = formatPercentage(expectedReturnsData.WITHOUT_SHORT_SELL.sigma_m);
+        }
+
+        // New function to calculate and update portfolio returns
+        function updatePortfolioReturns() {
+            if (!originalAssessmentData || !originalAssessmentData.portfolioAllocation) {
+                console.error("Missing assessment data for portfolio return calculation");
+                return;
+            }
+            
+            // Calculate with short selling returns
+            if (originalAssessmentData.portfolioAllocation.withShortSelling) {
+                const withShortData = originalAssessmentData.portfolioAllocation.withShortSelling;
+                const rf = expectedReturnsData.WITH_SHORT_SELL.R_f;
+                const erm = expectedReturnsData.WITH_SHORT_SELL.E_rm;
+                
+                // Calculate weights of risky assets and risk-free asset
+                const rfWeight = withShortData.riskFreeAllocation;
+                const riskyWeight = 1 - rfWeight; // All other allocations combined make up the risky weight
+                
+                // Calculate expected portfolio return: E[Rp] = E_rm * risky_weight + R_f * rf_weight
+                const expectedReturn = erm * riskyWeight + rf * rfWeight;
+                
+                // Update the displayed value
+                document.getElementById('with-short-portfolio-return').textContent = formatPercentage(expectedReturn);
+            }
+            
+            // Calculate without short selling returns
+            if (originalAssessmentData.portfolioAllocation.withoutShortSelling) {
+                const withoutShortData = originalAssessmentData.portfolioAllocation.withoutShortSelling;
+                const rf = expectedReturnsData.WITHOUT_SHORT_SELL.R_f;
+                const erm = expectedReturnsData.WITHOUT_SHORT_SELL.E_rm;
+                
+                // Calculate weights of risky assets and risk-free asset
+                const rfWeight = withoutShortData.riskFreeAllocation;
+                const riskyWeight = 1 - rfWeight; // All other allocations combined make up the risky weight
+                
+                // Calculate expected portfolio return: E[Rp] = E_rm * risky_weight + R_f * rf_weight
+                const expectedReturn = erm * riskyWeight + rf * rfWeight;
+                
+                // Update the displayed value
+                document.getElementById('without-short-portfolio-return').textContent = formatPercentage(expectedReturn);
+            }
+        }
+
+        // Helper function to format percentages
+        function formatPercentage(value) {
+            if (value === undefined || value === null || isNaN(value)) {
+                return "0.00%";
+            }
+            return (value * 100).toFixed(2) + "%";
+        }
+
+        function fetchLatestAssessment() {
+            // Show loading indicator
+            document.getElementById('loading-container').style.display = 'block';
+            document.getElementById('error-container').style.display = 'none';
+            document.getElementById('results-content').style.display = 'none';
+            
+            // Fetch data from the server
+            fetch('/latest-assessment')
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Failed to fetch assessment data');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received assessment data:', data);
+                    
+                    // check if data is valid
+                    if (data.portfolioAllocation) {
+                        console.log('With short selling rfAllocation:', 
+                            data.portfolioAllocation.withShortSelling?.riskFreeAllocation);
+                        console.log('Without short selling rfAllocation:', 
+                            data.portfolioAllocation.withoutShortSelling?.riskFreeAllocation);
+                    }
+                    
+                    // store the data
+                    assessmentData = data;
+                    originalAssessmentData = JSON.parse(JSON.stringify(data)); // 深拷贝
+                    
+                    displayResults(data);
+                    document.getElementById('loading-container').style.display = 'none';
+                    document.getElementById('results-content').style.display = 'block';
+                    
+                    // Calculate and display portfolio returns
+                    updatePortfolioReturns();
+                })
+                .catch(error => {
+                    console.error('Error fetching assessment data:', error);
+                    document.getElementById('loading-container').style.display = 'none';
+                    document.getElementById('error-message').textContent = error.message || 'Failed to load assessment data. Please try again.';
+                    document.getElementById('error-container').style.display = 'block';
+                });
+        }
+
+        function displayResults(data) {
+            // Display assessment timestamp
+            const timestampEl = document.getElementById('assessment-time');
+            if (data.timestamp) {
+                const assessmentDate = new Date(data.timestamp);
+                timestampEl.textContent = `Assessment Date: ${assessmentDate.toLocaleString()}`;
+            } else {
+                const now = new Date();
+                timestampEl.textContent = `Assessment Date: ${now.toLocaleString()}`;
+            }
+
+            // Display personal information if available
+            if (data.personal) {
+                const personalInfoSection = document.getElementById('personal-info-section');
+                personalInfoSection.innerHTML = '<h3>Personal Information</h3>';
+                
+                const personalInfo = data.personal;
+                const infoFields = [
+                    { label: 'Name', value: personalInfo.name || 'Not provided' },
+                    { label: 'Gender', value: formatPersonalValue(personalInfo.gender) },
+                    { label: 'Age Range', value: formatPersonalValue(personalInfo.ageRange) },
+                    { label: 'Income', value: formatIncomeValue(personalInfo.income) }
+                ];
+                
+                infoFields.forEach(field => {
+                    if (field.value) {
+                        const infoRow = document.createElement('div');
+                        infoRow.className = 'info-row';
+                        
+                        const infoLabel = document.createElement('div');
+                        infoLabel.className = 'info-label';
+                        infoLabel.textContent = field.label + ':';
+                        
+                        const infoValue = document.createElement('div');
+                        infoValue.className = 'info-value';
+                        infoValue.textContent = field.value;
+                        
+                        infoRow.appendChild(infoLabel);
+                        infoRow.appendChild(infoValue);
+                        personalInfoSection.appendChild(infoRow);
+                    }
+                });
+            } else {
+                document.getElementById('personal-info-section').style.display = 'none';
+            }
+            
+            // Display basic metrics
+            document.getElementById('risk-score').textContent = data.normalizedScore;
+            document.getElementById('risk-aversion').textContent = data.riskAversionA.toFixed(2);
+            
+            // Update gauge
+            const percentA = ((data.riskAversionA - 1) / 9) * 100; // Scale from 1-10 to 0-100%
+            document.getElementById('gauge-fill').style.width = `${percentA}%`;
+            document.querySelector('.gauge').setAttribute('aria-valuenow', data.riskAversionA.toFixed(2));
+
+            // Update investor profile
+            document.getElementById('investor-type').textContent = data.investorType;
+            document.getElementById('investor-description').textContent = data.investorDescription;
+
+            // Display allocation charts and tables
+            if (data.portfolioAllocation) {
+                if (data.portfolioAllocation.withShortSelling) {
+                    displayAllocation(data.portfolioAllocation.withShortSelling, 'with-short');
+                }
+                if (data.portfolioAllocation.withoutShortSelling) {
+                    displayAllocation(data.portfolioAllocation.withoutShortSelling, 'without-short');
+                }
+            }
+        }
+
+        function formatPersonalValue(value) {
+            if (!value) return 'Not provided';
+            
+            // Format values to be more readable
+            return value
+                .replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+        
+        function formatIncomeValue(value) {
+            if (!value) return 'Not provided';
+            
+            const incomeMapping = {
+                'below_30k': 'Below $30,000',
+                '30k_50k': '$30,000 - $50,000',
+                '50k_100k': '$50,000 - $100,000',
+                '100k_150k': '$100,000 - $150,000',
+                '150k_200k': '$150,000 - $200,000',
+                'above_200k': 'Above $200,000'
+            };
+            
+            return incomeMapping[value] || formatPersonalValue(value);
+        }
+
+        function formatCurrencyAmount(amount) {
+            // check if amount is valid
+            if (amount === undefined || amount === null || isNaN(amount)) {
+                console.warn('Invalid amount in formatCurrencyAmount:', amount);
+                return '$0.00';
+            }
+            
+            // Format with 2 decimal places and dollar sign
+            return '$' + amount.toFixed(2);
+        }
+
+        function displayAllocation(allocation, prefix) {
+            if (!allocation) {
+                console.error(`No allocation data for ${prefix}`);
+                return;
+            }
+            
+            // validate allocation data
+            const fundWeights = allocation.fundWeights || {};
+            const rfAllocation = typeof allocation.riskFreeAllocation === 'number' && !isNaN(allocation.riskFreeAllocation) 
+                               ? allocation.riskFreeAllocation 
+                               : 0;
+            
+            // return if no data
+            console.log(`${prefix} allocation data:`, allocation);
+            console.log(`${prefix} rfAllocation:`, rfAllocation);
+            
+            // Prepare data for chart
+            const funds = Object.keys(fundWeights);
+            const weights = Object.values(fundWeights).map(w => {
+                // check if w is a number and not NaN
+                return (typeof w === 'number' && !isNaN(w)) ? w * 100 : 0;
+            });
+            
+            // Add risk-free asset
+            funds.push('Risk-Free Asset');
+            weights.push(rfAllocation * 100);
+            
+            // Set colors (red for negative weights)
+            const colors = weights.map(w => w < 0 ? 'rgba(220, 53, 69, 0.7)' : 'rgba(58, 110, 165, 0.7)');
+            
+            // Create chart
+            createChart(`${prefix}-chart`, funds, weights, colors, prefix);
+            
+            // Create table with amounts
+            createAllocationTable(fundWeights, rfAllocation, prefix);
+        }
+
+        function createAllocationTable(fundWeights, rfAllocation, prefix) {
+            // validate inputs
+            if (!fundWeights || typeof fundWeights !== 'object') {
+                console.error(`Invalid fundWeights for ${prefix}:`, fundWeights);
+                fundWeights = {};
+            }
+            
+            if (rfAllocation === undefined || rfAllocation === null || isNaN(rfAllocation)) {
+                console.warn(`Invalid rfAllocation for ${prefix}, defaulting to 0`);
+                rfAllocation = 0;
+            }
+            
+            const tableBody = document.getElementById(`${prefix}-table-body`);
+            tableBody.innerHTML = '';
+            
+            let totalWeight = 0;
+            let totalAmount = 0;
+            
+            // Add fund rows
+            Object.entries(fundWeights).forEach(([fund, weight]) => {
+                // check if weight is valid
+                if (weight === undefined || weight === null || isNaN(weight)) {
+                    console.warn(`Invalid weight for ${fund}, defaulting to 0`);
+                    weight = 0;
+                }
+                
+                const weightPercent = weight * 100;
+                const amount = weight * investmentAmount;
+                
+                totalWeight += weightPercent;
+                totalAmount += amount;
+                
+                const row = document.createElement('tr');
+                
+                // Fund name cell
+                const fundCell = document.createElement('td');
+                fundCell.textContent = fund;
+                
+                // Weight percentage cell
+                const weightCell = document.createElement('td');
+                weightCell.textContent = `${weightPercent.toFixed(2)}%`;
+                if (weight < 0) {
+                    weightCell.classList.add('negative');
+                }
+                
+                // Amount cell
+                const amountCell = document.createElement('td');
+                amountCell.textContent = formatCurrencyAmount(amount);
+                if (amount < 0) {
+                    amountCell.classList.add('negative');
+                }
+                
+                row.appendChild(fundCell);
+                row.appendChild(weightCell);
+                row.appendChild(amountCell);
+                tableBody.appendChild(row);
+            });
+            
+            // Add risk-free asset row
+            const rfRow = document.createElement('tr');
+            
+            const rfLabel = document.createElement('td');
+            rfLabel.textContent = 'Risk-Free Asset';
+            rfLabel.style.fontWeight = 'bold';
+            
+            const rfWeight = document.createElement('td');
+            const rfWeightPercent = rfAllocation * 100;
+            rfWeight.textContent = `${rfWeightPercent.toFixed(2)}%`;
+            rfWeight.style.fontWeight = 'bold';
+            if (rfAllocation < 0) {
+                rfWeight.classList.add('negative');
+            }
+            
+            const rfAmount = document.createElement('td');
+            const rfAmountValue = rfAllocation * investmentAmount;
+            rfAmount.textContent = formatCurrencyAmount(rfAmountValue);
+            rfAmount.style.fontWeight = 'bold';
+            if (rfAmountValue < 0) {
+                rfAmount.classList.add('negative');
+            }
+            
+            rfRow.appendChild(rfLabel);
+            rfRow.appendChild(rfWeight);
+            rfRow.appendChild(rfAmount);
+            tableBody.appendChild(rfRow);
+            
+            // Add total row
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total';
+            
+            const totalLabel = document.createElement('td');
+            totalLabel.textContent = 'Total';
+            
+            const totalWeightCell = document.createElement('td');
+            const finalTotalWeight = totalWeight + rfWeightPercent;
+            totalWeightCell.textContent = `${finalTotalWeight.toFixed(2)}%`;
+            
+            const totalAmountCell = document.createElement('td');
+            const finalTotalAmount = totalAmount + rfAmountValue;
+            totalAmountCell.textContent = formatCurrencyAmount(finalTotalAmount);
+            
+            totalRow.appendChild(totalLabel);
+            totalRow.appendChild(totalWeightCell);
+            totalRow.appendChild(totalAmountCell);
+            tableBody.appendChild(totalRow);
+        }
+
+        // update the total row
+        function updateAllocationTables() {
+            if (!originalAssessmentData || !originalAssessmentData.portfolioAllocation) {
+                console.error("Missing assessment data for table update");
+                return;
+            }
+            
+            console.log("Updating tables with investment amount:", investmentAmount);
+            
+            const portfolioAllocation = originalAssessmentData.portfolioAllocation;
+            
+            // update with short selling
+            if (portfolioAllocation.withShortSelling) {
+                const { fundWeights, riskFreeAllocation } = portfolioAllocation.withShortSelling;
+                updateAllocationTable(fundWeights, riskFreeAllocation, 'with-short');
+            }
+            
+            // update without short selling
+            if (portfolioAllocation.withoutShortSelling) {
+                const { fundWeights, riskFreeAllocation } = portfolioAllocation.withoutShortSelling;
+                updateAllocationTable(fundWeights, riskFreeAllocation, 'without-short');
+            }
+            
+            // update charts
+            if (withShortChart) {
+                withShortChart.update();
+            }
+            if (withoutShortChart) {
+                withoutShortChart.update();
+            }
+        }
+
+        // update the allocation table
+        function updateAllocationTable(fundWeights, rfAllocation, prefix) {
+            if (!fundWeights || typeof fundWeights !== 'object') {
+                console.error(`Invalid fundWeights for ${prefix} update:`, fundWeights);
+                return;
+            }
+            
+            if (rfAllocation === undefined || rfAllocation === null || isNaN(rfAllocation)) {
+                console.error(`Invalid rfAllocation for ${prefix} update:`, rfAllocation);
+                rfAllocation = 0;
+            }
+            
+            const tableBody = document.getElementById(`${prefix}-table-body`);
+            if (!tableBody) {
+                console.error(`Table body element not found for ${prefix}`);
+                return;
+            }
+            
+            const rows = tableBody.querySelectorAll('tr');
+            if (rows.length === 0) {
+                console.warn(`No rows found in ${prefix} table, creating new table`);
+                createAllocationTable(fundWeights, rfAllocation, prefix);
+                return;
+            }
+            
+            // update rows except for the last two (total and risk-free asset)
+            let fundIndex = 0;
+            let totalWeight = 0;
+            let totalAmount = 0;
+            
+            const fundEntries = Object.entries(fundWeights);
+            
+            // check if the number of fund entries matches the number of rows
+            if (fundEntries.length + 2 !== rows.length) {
+                console.warn(`Row count mismatch in ${prefix} table, recreating table`);
+                createAllocationTable(fundWeights, rfAllocation, prefix);
+                return;
+            }
+            
+            // update the fund rows
+            fundEntries.forEach(([fund, weight], index) => {
+                if (index < rows.length - 2) {
+                    const row = rows[index];
+                    const cells = row.querySelectorAll('td');
+                    
+                    if (cells.length >= 3) {
+                        // check if the weight is valid
+                        if (weight === undefined || weight === null || isNaN(weight)) {
+                            console.warn(`Invalid weight for ${fund}, defaulting to 0`);
+                            weight = 0;
+                        }
+                        
+                        const weightPercent = weight * 100;
+                        const amount = weight * investmentAmount;
+                        
+                        totalWeight += weightPercent;
+                        totalAmount += amount;
+                        
+                        cells[2].textContent = formatCurrencyAmount(amount);
+                        cells[2].className = amount < 0 ? 'negative' : '';
+                    }
+                }
+            });
+            
+            // update risk-free asset row
+            const rfRow = rows[rows.length - 2];
+            if (rfRow) {
+                const rfCells = rfRow.querySelectorAll('td');
+                if (rfCells.length >= 3) {
+                    const rfWeightPercent = rfAllocation * 100;
+                    const rfAmountValue = rfAllocation * investmentAmount;
+                    
+                    rfCells[2].textContent = formatCurrencyAmount(rfAmountValue);
+                    rfCells[2].className = rfAmountValue < 0 ? 'negative' : '';
+                }
+            }
+            
+            // update the total row
+            const totalRow = rows[rows.length - 1];
+            if (totalRow) {
+                const totalCells = totalRow.querySelectorAll('td');
+                if (totalCells.length >= 3) {
+                    const rfWeightPercent = rfAllocation * 100;
+                    const rfAmountValue = rfAllocation * investmentAmount;
+                    
+                    // update the total amount cell
+                    const finalTotalAmount = totalAmount + rfAmountValue;
+                    totalCells[2].textContent = formatCurrencyAmount(finalTotalAmount);
+                }
+            }
+        }
+
+        function createChart(canvasId, labels, data, colors, chartPrefix) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Sort data for better visualization
+            const combined = labels.map((label, i) => ({
+                label,
+                value: data[i],
+                color: colors[i]
+            }));
+            
+            combined.sort((a, b) => b.value - a.value);
+            
+            const sortedLabels = combined.map(item => item.label);
+            const sortedData = combined.map(item => item.value);
+            const sortedColors = combined.map(item => item.color);
+            
+            // Destroy previous chart if it exists
+            if (chartPrefix === 'with-short' && withShortChart) {
+                withShortChart.destroy();
+            } else if (chartPrefix === 'without-short' && withoutShortChart) {
+                withoutShortChart.destroy();
+            }
+            
+            // Create new chart
+            const newChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedLabels,
+                    datasets: [{
+                        label: 'Allocation (%)',
+                        data: sortedData,
+                        backgroundColor: sortedColors,
+                        borderColor: sortedColors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const percentage = value.toFixed(2) + '%';
+                                    
+                                    // Calculate amount based on investment amount
+                                    const amount = (value / 100) * investmentAmount;
+                                    const formattedAmount = formatCurrencyAmount(amount);
+                                    
+                                    return [`Allocation: ${percentage}`, `Amount: ${formattedAmount}`];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Store chart reference
+            if (chartPrefix === 'with-short') {
+                withShortChart = newChart;
+            } else if (chartPrefix === 'without-short') {
+                withoutShortChart = newChart;
+            }
+            
+            return newChart;
+        }
+
+        function downloadResults(data) {
+            // Calculate portfolio returns for download
+            let portfolioReturns = {};
+            
+            if (data.portfolioAllocation) {
+                if (data.portfolioAllocation.withShortSelling) {
+                    const withShortData = data.portfolioAllocation.withShortSelling;
+                    const rf = expectedReturnsData.WITH_SHORT_SELL.R_f;
+                    const erm = expectedReturnsData.WITH_SHORT_SELL.E_rm;
+                    
+                    const rfWeight = withShortData.riskFreeAllocation;
+                    const riskyWeight = 1 - rfWeight;
+                    
+                    portfolioReturns.withShortSelling = {
+                        expectedReturn: erm * riskyWeight + rf * rfWeight,
+                        riskyWeight: riskyWeight,
+                        rfWeight: rfWeight
+                    };
+                }
+                
+                if (data.portfolioAllocation.withoutShortSelling) {
+                    const withoutShortData = data.portfolioAllocation.withoutShortSelling;
+                    const rf = expectedReturnsData.WITHOUT_SHORT_SELL.R_f;
+                    const erm = expectedReturnsData.WITHOUT_SHORT_SELL.E_rm;
+                    
+                    const rfWeight = withoutShortData.riskFreeAllocation;
+                    const riskyWeight = 1 - rfWeight;
+                    
+                    portfolioReturns.withoutShortSelling = {
+                        expectedReturn: erm * riskyWeight + rf * rfWeight,
+                        riskyWeight: riskyWeight,
+                        rfWeight: rfWeight
+                    };
+                }
+            }
+            
+            // Add current investment amount, expected returns, and portfolio returns to the data
+            const downloadData = {
+                ...data,
+                investmentSettings: {
+                    amount: investmentAmount,
+                    currency: 'SGD'
+                },
+                marketParameters: expectedReturnsData,
+                portfolioReturns: portfolioReturns
+            };
+            
+            const blob = new Blob([JSON.stringify(downloadData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'risk_assessment_results.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

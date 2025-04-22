@@ -1,0 +1,65 @@
+{
+  "personal": {
+    "name": "SS",
+    "gender": "male",
+    "ageRange": "25-34",
+    "income": "30k_50k"
+  },
+  "answers": {
+    "experience": "extensive_experience",
+    "investment_types": [
+      "deposits",
+      "bonds"
+    ],
+    "investment_objective": "high_returns",
+    "drop_reaction": "hold",
+    "investment_goal": "high_growth",
+    "investment_horizon": "1_to_3",
+    "max_loss": "more_than_30",
+    "access_funds": "some_flexibility",
+    "investment_choice": "option_c",
+    "market_fluctuation": "stay_invested"
+  },
+  "rawScore": 81,
+  "maxScore": 110,
+  "normalizedScore": 74,
+  "riskAversionA": 3.34,
+  "investorType": "Aggressive Investor",
+  "investorDescription": "You are willing to take higher risks for potentially higher returns, focusing on maximizing growth.",
+  "portfolioAllocation": {
+    "withShortSelling": {
+      "riskAssetAllocation_y": 1.3195925991237991,
+      "riskFreeAllocation": -0.3196057950497906,
+      "fundWeights": {
+        "GS US CORE EQUITY PORTFOLIO ACC USD": 1.3195925991237991,
+        "NIKKO AM SHENTON JAPAN FUND SGD": 0.15395686853977364,
+        "JPMORGAN FUNDS - AMERICA EQUITY A USD": -0.14190898810977334,
+        "FIDELITY GLOBAL FINANCIAL SERVICES A-ACC-SGD Daily Prices": -0.7083177194316816,
+        "NIKKO AM SHENTON THRIFT FUND SGD": 1.3195925991237991,
+        "JANUS HENDERSON HORIZON GLOBAL TECHNOLOGY LEADERS A2 SGD": 0.4278515084139094,
+        "NATIXIS HARRIS ASSOCIATES US VALUE EQUITY RA USD": -0.5567361175703308,
+        "UNITED SINGAPORE GROWTH FUND SGD": -1.0197019850469244,
+        "FTGF CLEARBRIDGE INFRASTRUCTURE VALUE A MDIS SGD-H PLUS Daily Prices": -0.7943155691165796,
+        "FIDELITY GLOBAL TECHNOLOGY A-ACC-USD": 1.3195925991237991
+      },
+      "totalRiskyWeight": 1.3196057950497906
+    },
+    "withoutShortSelling": {
+      "riskAssetAllocation_y": 1.4352576068291858,
+      "riskFreeAllocation": -0.4352576068291858,
+      "fundWeights": {
+        "GS US CORE EQUITY PORTFOLIO ACC USD": 0.29220409617435394,
+        "NIKKO AM SHENTON JAPAN FUND SGD": 0,
+        "JPMORGAN FUNDS - AMERICA EQUITY A USD": 0,
+        "FIDELITY GLOBAL FINANCIAL SERVICES A-ACC-SGD Daily Prices": 0,
+        "NIKKO AM SHENTON THRIFT FUND SGD": 0,
+        "JANUS HENDERSON HORIZON GLOBAL TECHNOLOGY LEADERS A2 SGD": 0.40267587417199635,
+        "NATIXIS HARRIS ASSOCIATES US VALUE EQUITY RA USD": 0,
+        "UNITED SINGAPORE GROWTH FUND SGD": 0,
+        "FTGF CLEARBRIDGE INFRASTRUCTURE VALUE A MDIS SGD-H PLUS Daily Prices": 0,
+        "FIDELITY GLOBAL TECHNOLOGY A-ACC-USD": 0.7403776364828355
+      },
+      "totalRiskyWeight": 1.4352576068291858
+    }
+  }
+}

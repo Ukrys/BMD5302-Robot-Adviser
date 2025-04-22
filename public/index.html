@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Risk Assessment</title>
+    <style>
+    .negative { background-color: #ffe6e6; }
+    .gauge { position: relative; width: 100%; height: 20px; background: #f0f0f0; border-radius: 10px; margin: 10px 0; }
+    .gauge-fill { height: 100%; background: var(--primary-color); border-radius: 10px; transition: width 0.5s; }
+    .controls { margin-top: 20px; display: flex; gap: 10px; }
+    .controls button { padding: 8px 16px; cursor: pointer; border: none; border-radius: 5px; background: var(--primary-color); color: white; }
+    @media (max-width: 768px) { .controls { flex-direction: column; } }
+        
+        :root {
+            --primary-color: #3a6ea5;
+            --secondary-color: #52b788;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --white: #ffffff;
+            --form-bg: #f9f9f9;
+            --border-color: #ddd;
+            --active-color: #4a89dc;
+            --completed-color: #52b788;
+            --preview-color: #f0ad4e;
+            --marker-border: #ccc;
+            --section-background: #f4f7fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+        }
+
+        header {
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .lang-selector {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .login-btn {
+            padding: 8px 15px;
+            background-color: var(--white);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .main-container {
+            padding-top: 100px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .step {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin: 0 10px;
+        }
+
+        .step h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .step p {
+            color: var(--dark-gray);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .introduction {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .introduction h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .introduction p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .personal-info {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .personal-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .income-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .income-option {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .income-option:hover, .income-option.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .gender-options, .age-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gender-option, .age-option {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gender-option:hover, .gender-option.selected,
+        .age-option:hover, .age-option.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .assessment-container {
+            display: flex;
+            gap: 30px;
+        }
+
+        .questions-panel {
+            flex: 3;
+        }
+
+        .progress-panel {
+            flex: 1;
+            position: sticky;
+            top: 120px;
+            align-self: flex-start;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+
+        .progress-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .progress-items {
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 10px;
+            border-radius: 5px;
+        }
+
+        .progress-item:hover {
+            background-color: #f0f4f8;
+        }
+
+        .progress-item.active {
+            background-color: #e7f1ff;
+            border-left: 3px solid var(--active-color);
+        }
+
+        .progress-item.completed {
+            border-left: 3px solid var(--completed-color);
+        }
+
+        .progress-item.preview {
+            border-left: 3px solid var(--preview-color);
+        }
+
+        .progress-marker {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid var(--marker-border);
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            transition: all 0.3s;
+        }
+
+        .progress-item.active .progress-marker {
+            border-color: var(--active-color);
+            background-color: var(--white);
+            color: var(--active-color);
+        }
+
+        .progress-item.completed .progress-marker {
+            border-color: var(--completed-color);
+            background-color: var(--completed-color);
+            color: white;
+        }
+
+        .progress-item.preview .progress-marker {
+            border-color: var(--preview-color);
+            background-color: #f0f0f0;
+            color: var(--dark-gray);
+        }
+
+        .progress-item-text {
+            font-size: 0.9rem;
+            color: #666;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-item.active .progress-item-text {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .progress-section {
+            font-weight: 600;
+            background-color: var(--section-background);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .progress-section .progress-marker {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-section.active .progress-marker {
+            background-color: var(--active-color);
+            border-color: var(--active-color);
+        }
+
+        .progress-section.completed .progress-marker {
+            background-color: var(--completed-color);
+            border-color: var(--completed-color);
+        }
+
+        .progress-question {
+            padding-left: 20px;
+            margin-bottom: 5px;
+        }
+
+        .vertical-progress {
+            width: 3px;
+            background-color: #ddd;
+            height: 100%;
+            margin: 0 11px;
+            position: relative;
+        }
+
+        .vertical-progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--completed-color);
+            transition: height 0.5s ease;
+        }
+
+        .section-title {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.2rem;
+            margin-top: 40px;
+        }
+
+        .question-container {
+            background-color: var(--white);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover, .option.selected {
+            background-color: #e9f0f8;
+            border-color: var(--primary-color);
+        }
+
+        .option input[type="radio"], .option input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s;
+            display: inline-block; /* Needed for styling <a> like buttons */
+            text-align: center; /* Center text if needed */
+        }
+
+        .prev-btn {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+        }
+
+        .prev-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .next-btn, .submit-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .next-btn:hover, .submit-btn:hover {
+            background-color: #2d5a8a;
+        }
+
+        .question-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-indicator {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .question-nav-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .question-nav-btn {
+            padding: 8px 15px;
+            background-color: var(--light-gray);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-nav-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .question-nav-btn i {
+            font-size: 18px;
+        }
+
+        .back-btn {
+            color: var(--dark-gray);
+        }
+
+        .back-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .result-container {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-top: 30px;
+            display: none; /* Initially hidden */
+        }
+
+        .result-title {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .result-score, .result-a { /* Apply similar styles to both score and A */
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .investor-profile {
+            padding: 20px;
+            background-color: #f5f9ff;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .investor-profile h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .investor-profile p {
+            line-height: 1.5;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .check-icon {
+            font-size: 14px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 180px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            top: 125%;
+            left: 50%;
+            margin-left: -90px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #333 transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .assessment-container {
+                flex-direction: column;
+            }
+
+            .progress-panel {
+                position: static;
+                margin-bottom: 30px;
+                max-height: none;
+            }
+
+            .vertical-progress {
+                display: none;
+            }
+
+            .progress-items {
+                display: block;
+                padding-bottom: 10px;
+            }
+
+            .progress-question {
+                padding-left: 15px;
+            }
+
+            .tooltip .tooltiptext {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            nav ul {
+                margin: 15px 0;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            .step {
+                margin: 10px 0;
+            }
+
+            .income-options, .gender-options, .age-options {
+                flex-direction: column;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .question-navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-img">
+                    <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="20" r="18" fill="#f0f0f0" stroke="#3a6ea5" stroke-width="2"/>
+                        <path d="M15,25 L25,15 M15,15 L25,25" stroke="#3a6ea5" stroke-width="2"/>
+                        <circle cx="20" cy="20" r="5" fill="#52b788"/>
+                    </svg>
+                </div>
+                <div class="logo-text">Risk Assessment</div>
+            </div>
+
+            <nav>
+                <ul>
+                    <li><a href="questionaire.html" style="color: var(--primary-color);">Assessment</a></li>
+                    <li><a href="result.html">Result</a></li>
+                    <li><a href="chatbot.html" >Chatbot</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="steps-container">
+            <div class="step">
+                <h3>Complete the Assessment</h3>
+                <p>Answer questions honestly to determine your risk tolerance level.</p>
+            </div>
+
+            <div class="step">
+                <h3>View Your Risk Profile</h3>
+                <p>Learn what kind of investor you are and what investment options may suit you.</p>
+            </div>
+
+            <div class="step">
+                <h3>Get Recommendations</h3>
+                <p>Receive tailored investment suggestions based on your risk profile.</p>
+            </div>
+        </div>
+
+        <div class="introduction" id="introduction">
+            <h2>Investment Risk Assessment</h2>
+            <p>Please read the following questions carefully and select the answer that best reflects your situation. This questionnaire is designed to assess your risk tolerance and is not financial advice.</p>
+            <p>Your answers will help determine your investor profile, which can guide you in making investment decisions aligned with your risk tolerance level.</p>
+        </div>
+
+        <form id="risk-assessment-form">
+            <div id="personal-info-section" class="personal-info">
+                <h3>Optional Personal Information</h3>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <div class="income-options gender-options">
+                        <div class="income-option gender-option" data-value="male">Male</div>
+                        <div class="income-option gender-option" data-value="female">Female</div>
+                        <div class="income-option gender-option" data-value="other">Other</div>
+                        <div class="income-option gender-option" data-value="prefer_not_to_say">Prefer not to say</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Age Range:</label>
+                    <div class="income-options age-options">
+                        <div class="income-option age-option" data-value="18-24">18-24 years</div>
+                        <div class="income-option age-option" data-value="25-34">25-34 years</div>
+                        <div class="income-option age-option" data-value="35-44">35-44 years</div>
+                        <div class="income-option age-option" data-value="45-54">45-54 years</div>
+                        <div class="income-option age-option" data-value="55-64">55-64 years</div>
+                        <div class="income-option age-option" data-value="65+">65+ years</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Income (SGD):</label>
+                    <div class="income-options">
+                        <div class="income-option" data-value="below_30k">Below $30,000</div>
+                        <div class="income-option" data-value="30k_50k">$30,000 - $50,000</div>
+                        <div class="income-option" data-value="50k_100k">$50,000 - $100,000</div>
+                        <div class="income-option" data-value="100k_150k">$100,000 - $150,000</div>
+                        <div class="income-option" data-value="150k_200k">$150,000 - $200,000</div>
+                        <div class="income-option" data-value="above_200k">Above $200,000</div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <div></div> <button type="button" id="start-assessment-btn" class="nav-btn next-btn">Start Assessment</button>
+                </div>
+            </div>
+
+            <div id="questions-section" style="display: none;">
+                <div class="assessment-container">
+                    <div class="questions-panel">
+                        <div class="question-navigation">
+                            <div class="question-indicator">
+                                Question <span id="current-question">1</span> of <span id="total-questions">10</span>
+                            </div>
+                            <div class="question-nav-btns">
+                                <button type="button" id="back-btn" class="question-nav-btn back-btn">
+                                    ← Back
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="question-container" class="question-container">
+                            </div>
+
+                        <div class="navigation-buttons">
+                            <button type="button" id="prev-btn" class="nav-btn prev-btn">Previous Section</button>
+                            <button type="button" id="next-btn" class="nav-btn next-btn">Next</button>
+                        </div>
+                    </div>
+
+                    <div class="progress-panel">
+                        <div class="progress-title">Your Progress</div>
+                        <div id="progress-items" class="progress-items">
+                            </div>
+                        <div class="tooltip">
+                            <div class="progress-title" style="margin-top: 15px; font-size: 0.9rem; color: #888;">
+                                Click any item to navigate
+                            </div>
+                            <span class="tooltiptext">Click on any section or question to jump directly to it</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div id="result-container" class="result-container">
+            <h2 class="result-title">Your Investment Risk Profile</h2>
+            <div class="result-score">Score: <span id="result-score">0</span> points</div>
+
+            <div class="investor-profile">
+                <h4 id="investor-type">Investor Type</h4>
+                <p id="investor-description">Description will appear here.</p>
+            </div>
+            <div class="result-description">
+                <p>Based on your responses, we've assessed your risk tolerance level. This can help guide your investment decisions, but remember that this is not financial advice.</p>
+                <p>Consider consulting with a professional financial advisor before making investment decisions.</p>
+
+                <div id="portfolio-table-container" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);"></div>
+   
+                <div style="display: flex; justify-content: flex-end; margin-top: 30px;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 30px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const MARKET = {  
+            "WITH_SHORT_SELL":
+            {
+              "R_f": 0.025,
+              "E_rm": 0.3107265483510059,
+              "sigma_m": 0.2546139112923105,
+              "weights_market": {
+                "GS US CORE EQUITY PORTFOLIO ACC USD": 1.0,
+                "NIKKO AM SHENTON JAPAN FUND SGD": 0.11667,
+                "JPMORGAN FUNDS - AMERICA EQUITY A USD": -0.10754,
+                "FIDELITY GLOBAL FINANCIAL SERVICES A-ACC-SGD Daily Prices": -0.53677,
+                "NIKKO AM SHENTON THRIFT FUND SGD": 1.0,
+                "JANUS HENDERSON HORIZON GLOBAL TECHNOLOGY LEADERS A2 SGD": 0.32423,
+                "NATIXIS HARRIS ASSOCIATES US VALUE EQUITY RA USD": -0.4219,
+                "UNITED SINGAPORE GROWTH FUND SGD": -0.77274,
+                "FTGF CLEARBRIDGE INFRASTRUCTURE VALUE A MDIS SGD-H PLUS Daily Prices": -0.60194,
+                "FIDELITY GLOBAL TECHNOLOGY A-ACC-USD": 1.0
+              }
+            },
+            "WITHOUT_SHORT_SELL": 
+              {
+                  "R_f": 0.025,
+                  "E_rm": 0.1748614659499546,
+                  "sigma_m": 0.17681000084665968,
+                  "weights_market": {
+                    "GS US CORE EQUITY PORTFOLIO ACC USD": 0.20359,
+                    "NIKKO AM SHENTON JAPAN FUND SGD": 0.0,
+                    "JPMORGAN FUNDS - AMERICA EQUITY A USD": 0.0,
+                    "FIDELITY GLOBAL FINANCIAL SERVICES A-ACC-SGD Daily Prices": 0.0,
+                    "NIKKO AM SHENTON THRIFT FUND SGD": 0.0,
+                    "JANUS HENDERSON HORIZON GLOBAL TECHNOLOGY LEADERS A2 SGD": 0.28056,
+                    "NATIXIS HARRIS ASSOCIATES US VALUE EQUITY RA USD": 0.0,
+                    "UNITED SINGAPORE GROWTH FUND SGD": 0.0,
+                    "FTGF CLEARBRIDGE INFRASTRUCTURE VALUE A MDIS SGD-H PLUS Daily Prices": 0.0,
+                    "FIDELITY GLOBAL TECHNOLOGY A-ACC-USD": 0.51585
+                  }
+                }
+            }
+
+        // Risk assessment sections and questions
+        const sections = [
+            {
+                id: "investment_experience",
+                title: "Section 1: Investment Experience",
+                questions: [
+                    {
+                        id: "experience",
+                        text: "Do you have any investment experience?",
+                        type: "radio",
+                        options: [
+                            { value: "no_experience", text: "No experience", score: 0 },
+                            { value: "some_experience", text: "Some experience (e.g., savings, mutual funds, bonds)", score: 5 },
+                            { value: "extensive_experience", text: "Extensive experience (e.g., stocks, futures, forex)", score: 10 }
+                        ]
+                    },
+                    {
+                        id: "investment_types",
+                        text: "Which types of investments have you made? (Select all that apply)",
+                        type: "checkbox",
+                        options: [
+                            { value: "deposits", text: "Bank deposits, money market funds", score: 2 },
+                            { value: "bonds", text: "Bonds, bond funds", score: 4 },
+                            { value: "stocks", text: "Stocks, equity funds", score: 6 },
+                            { value: "derivatives", text: "Futures, options, forex", score: 8 }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "risk_tolerance",
+                title: "Section 2: Risk Tolerance",
+                questions: [
+                    {
+                        id: "investment_objective",
+                        text: "What is your primary investment objective?",
+                        type: "radio",
+                        options: [
+                            { value: "preservation", text: "Capital preservation, even if returns are low", score: 2 },
+                            { value: "balanced", text: "Balanced returns with moderate risk", score: 5 },
+                            { value: "high_returns", text: "High returns, willing to accept higher risk", score: 10 }
+                        ]
+                    },
+                    {
+                        id: "drop_reaction",
+                        text: "If your investment drops 10% in the short term, what would you do?",
+                        type: "radio",
+                        options: [
+                            { value: "sell", text: "Sell immediately to avoid further losses", score: 0 },
+                            { value: "hold", text: "Hold and wait for possible recovery", score: 5 },
+                            { value: "buy_more", text: "Consider buying more at a lower price", score: 10 }
+                        ]
+                    },
+                    {
+                        id: "investment_goal",
+                        text: "What is your main goal for investing?",
+                        type: "radio",
+                        options: [
+                            { value: "protection", text: "Capital protection and stability", score: 2 },
+                            { value: "moderate_growth", text: "Moderate growth with acceptable risk", score: 5 },
+                            { value: "high_growth", text: "High growth, willing to take significant risks", score: 10 }
+                        ]
+                    },
+                    {
+                        id: "investment_horizon",
+                        text: "What is your preferred investment horizon?",
+                        type: "radio",
+                        options: [
+                            { value: "less_than_1", text: "Less than 1 year", score: 2 },
+                            { value: "1_to_3", text: "1-3 years", score: 5 },
+                            { value: "more_than_3", text: "More than 3 years", score: 10 }
+                        ]
+                    },
+                    {
+                        id: "max_loss",
+                        text: "What is the maximum potential loss you can tolerate?",
+                        type: "radio",
+                        options: [
+                            { value: "up_to_5", text: "Up to 5%", score: 2 },
+                            { value: "5_to_10", text: "5%-10%", score: 4 },
+                            { value: "10_to_30", text: "10%-30%", score: 7 },
+                            { value: "more_than_30", text: "More than 30%", score: 10 }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "liquidity_needs",
+                title: "Section 3: Liquidity Needs",
+                questions: [
+                    {
+                        id: "access_funds",
+                        text: "Do you need access to your investment funds at any time?",
+                        type: "radio",
+                        options: [
+                            { value: "high_liquidity", text: "Yes, I need high liquidity", score: 2 },
+                            { value: "some_flexibility", text: "It depends, I prefer some flexibility", score: 5 },
+                            { value: "long_period", text: "No, I can keep my investment for a long period", score: 10 }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "overall_assessment",
+                title: "Section 4: Overall Assessment",
+                questions: [
+                    {
+                        id: "investment_choice",
+                        text: "If given three investment options, which would you choose?",
+                        type: "radio",
+                        options: [
+                            { value: "option_a", text: "Option A (Low risk, 3%-5% annual return, minimal loss)", score: 2 },
+                            { value: "option_b", text: "Option B (Moderate risk, 6%-10% annual return, potential losses)", score: 5 },
+                            { value: "option_c", text: "Option C (High risk, 10%+ annual return, significant potential losses)", score: 10 }
+                        ]
+                    },
+                    {
+                        id: "market_fluctuation",
+                        text: "How would you react to major market fluctuations?",
+                        type: "radio",
+                        options: [
+                            { value: "lower_risk", text: "Immediately adjust my portfolio to lower risk", score: 2 },
+                            { value: "slight_adjustments", text: "Make slight adjustments while keeping some risk exposure", score: 5 },
+                            { value: "stay_invested", text: "Stay invested and ignore short-term volatility", score: 10 }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // Set up variables to track section and question navigation
+        let currentSectionIndex = 0;
+        let currentQuestionIndex = 0;
+        let totalQuestions = 0;
+        // Flatten questions array for easier navigation
+        const flattenedQuestions = [];
+        sections.forEach(section => {
+            section.questions.forEach(question => {
+                flattenedQuestions.push({
+                    sectionIndex: sections.indexOf(section),
+                    questionIndex: section.questions.indexOf(question),
+                    sectionId: section.id,
+                    questionId: question.id,
+                    question: question,
+                    sectionTitle: section.title
+                });
+            });
+        });
+
+        // Track which questions have been answered
+        const questionsAnswered = new Set();
+        const answers = {};
+        let selectedIncome = null;
+        let selectedGender = null;
+        let selectedAgeRange = null;
+        let highestQuestionIndex = 0; // Track the highest question index user has reached
+
+        // Initialize the assessment
+        function initAssessment() {
+            // Set total questions count
+            totalQuestions = flattenedQuestions.length;
+            document.getElementById('total-questions').textContent = totalQuestions;
+
+            // Setup personal info selections
+            setupPersonalInfoSelections();
+
+            // Setup button handlers
+            document.getElementById('start-assessment-btn').addEventListener('click', startAssessment);
+            document.getElementById('back-btn').addEventListener('click', goToPreviousQuestion);
+            document.getElementById('prev-btn').addEventListener('click', goToPreviousSection);
+            document.getElementById('next-btn').addEventListener('click', handleNextButton);
+        }
+
+        // Setup personal info selections
+        function setupPersonalInfoSelections() {
+            // Setup income options
+            const incomeOptions = document.querySelectorAll('.income-option:not(.gender-option):not(.age-option)');
+            incomeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    incomeOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedIncome = this.getAttribute('data-value');
+                });
+            });
+
+            // Setup gender options
+            const genderOptions = document.querySelectorAll('.gender-option');
+            genderOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    genderOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedGender = this.getAttribute('data-value');
+                });
+            });
+
+            // Setup age options
+            const ageOptions = document.querySelectorAll('.age-option');
+            ageOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    ageOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedAgeRange = this.getAttribute('data-value');
+                });
+            });
+        }
+
+        // Start the assessment
+        function startAssessment() {
+            document.getElementById('personal-info-section').style.display = 'none';
+            document.getElementById('questions-section').style.display = 'block';
+
+            // Create progress items
+            createProgressItems();
+
+            // Start with the first question
+            renderCurrentQuestion();
+            updateProgressBar();
+        }
+
+        // Create progress items in the right panel
+        function createProgressItems() {
+            const progressItems = document.getElementById('progress-items');
+            progressItems.innerHTML = '';
+
+            // Loop through sections
+            sections.forEach((section, sectionIndex) => {
+                // Create section title
+                const sectionItem = document.createElement('div');
+                sectionItem.className = 'progress-item progress-section';
+                sectionItem.dataset.sectionIndex = sectionIndex;
+
+                const sectionMarker = document.createElement('div');
+                sectionMarker.className = 'progress-marker';
+                sectionMarker.textContent = sectionIndex + 1; // Use section number
+
+                const sectionText = document.createElement('div');
+                sectionText.className = 'progress-item-text';
+                sectionText.textContent = section.title.replace('Section ' + (sectionIndex + 1) + ': ', '');
+
+                sectionItem.appendChild(sectionMarker);
+                sectionItem.appendChild(sectionText);
+                progressItems.appendChild(sectionItem);
+
+                // Add click event to navigate to first question of section
+                sectionItem.addEventListener('click', function() {
+                    const firstQuestionIndex = flattenedQuestions.findIndex(q => q.sectionIndex === sectionIndex);
+                    if (firstQuestionIndex !== -1) {
+                        navigateToQuestion(firstQuestionIndex);
+                    }
+                });
+
+                // Create question items for this section
+                section.questions.forEach((question, questionIndex) => {
+                    const questionItem = document.createElement('div');
+                    questionItem.className = 'progress-item progress-question question-progress-item';
+                    const globalQuestionIndex = flattenedQuestions.findIndex(q => q.sectionIndex === sectionIndex && q.questionIndex === questionIndex);
+                    questionItem.dataset.questionIndex = globalQuestionIndex;
+
+                    const questionMarker = document.createElement('div');
+                    questionMarker.className = 'progress-marker';
+                    questionMarker.innerHTML = ''; // Initially empty
+
+                    const questionText = document.createElement('div');
+                    questionText.className = 'progress-item-text';
+                    const shortText = question.text.length > 25 ? question.text.substring(0, 22) + '...' : question.text;
+                    questionText.textContent = shortText;
+
+                    questionItem.appendChild(questionMarker);
+                    questionItem.appendChild(questionText);
+                    progressItems.appendChild(questionItem);
+
+                    // Add click event to navigate to question
+                    questionItem.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.questionIndex);
+                        navigateToQuestion(index);
+                    });
+                });
+            });
+        }
+
+        // Navigate to a specific question
+        function navigateToQuestion(index) {
+            currentQuestionIndex = index;
+            if (index > highestQuestionIndex) {
+                highestQuestionIndex = index;
+            }
+            renderCurrentQuestion();
+            updateProgressBar();
+        }
+
+        // Update progress items based on current question
+        function updateProgressItems() {
+             // Clear all active/preview classes first
+            document.querySelectorAll('.progress-item').forEach(item => {
+                item.classList.remove('active', 'preview');
+                 // Keep completed class logic separate
+            });
+
+            // Update markers and completed status for all questions
+            document.querySelectorAll('.question-progress-item').forEach(item => {
+                const index = parseInt(item.dataset.questionIndex);
+                const marker = item.querySelector('.progress-marker');
+
+                if (questionsAnswered.has(index)) {
+                    marker.innerHTML = '<span class="check-icon">✓</span>';
+                    item.classList.add('completed');
+                    item.classList.remove('preview'); // Ensure completed are not marked as preview
+                } else {
+                    marker.innerHTML = '';
+                    item.classList.remove('completed');
+                     // Mark questions beyond the highest index reached as preview if not completed
+                     if (index > highestQuestionIndex) {
+                         item.classList.add('preview');
+                     } else {
+                         item.classList.remove('preview');
+                     }
+                }
+            });
+
+            // Mark current question item as active
+            const currentItem = document.querySelector(`.progress-item[data-question-index="${currentQuestionIndex}"]`);
+            if (currentItem) {
+                currentItem.classList.add('active');
+                currentItem.classList.remove('preview'); // Active question is never a preview
+                currentItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Update section status (active/completed)
+            sections.forEach((section, sectionIndex) => {
+                const sectionItem = document.querySelector(`.progress-item[data-section-index="${sectionIndex}"]`);
+                if (sectionItem) {
+                     // Check if section is active
+                    if (flattenedQuestions[currentQuestionIndex]?.sectionIndex === sectionIndex) {
+                        sectionItem.classList.add('active');
+                    } else {
+                        sectionItem.classList.remove('active');
+                    }
+
+                    // Check if section is completed
+                    const allQuestionsInSection = flattenedQuestions.filter(q => q.sectionIndex === sectionIndex);
+                    const allQuestionsAnswered = allQuestionsInSection.every(q =>
+                        questionsAnswered.has(flattenedQuestions.findIndex(fq => fq.sectionId === q.sectionId && fq.questionId === q.questionId))
+                    );
+                    if (allQuestionsAnswered) {
+                        sectionItem.classList.add('completed');
+                         sectionItem.classList.remove('active'); // Completed section shouldn't stay active
+                    } else {
+                        sectionItem.classList.remove('completed');
+                    }
+                }
+            });
+        }
+
+
+        // Render the current question
+        function renderCurrentQuestion() {
+            const currentQuestionData = flattenedQuestions[currentQuestionIndex];
+            const question = currentQuestionData.question;
+            const questionId = currentQuestionData.questionId;
+            const questionContainer = document.getElementById('question-container');
+
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            questionContainer.innerHTML = ''; // Clear previous question
+
+            const questionElement = document.createElement('div');
+            questionElement.className = 'question fade-in';
+
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = question.text;
+            questionElement.appendChild(questionText);
+
+            const optionsElement = document.createElement('div');
+            optionsElement.className = 'options';
+
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('label');
+                optionElement.className = 'option slide-in';
+                optionElement.style.animationDelay = `${index * 0.05}s`; // Faster animation
+
+                const input = document.createElement('input');
+                input.type = question.type;
+                input.name = questionId;
+                input.value = option.value;
+
+                // Pre-select based on stored answers
+                if (question.type === 'radio' && answers[questionId] === option.value) {
+                    input.checked = true;
+                    optionElement.classList.add('selected');
+                } else if (question.type === 'checkbox' && answers[questionId]?.includes(option.value)) {
+                    input.checked = true;
+                    optionElement.classList.add('selected');
+                }
+
+                input.addEventListener('change', function() {
+                    handleAnswerChange(questionId, question.type, option.value, this.checked, optionsElement, optionElement);
+                });
+
+                optionElement.appendChild(input);
+                optionElement.appendChild(document.createTextNode(option.text));
+                optionsElement.appendChild(optionElement);
+            });
+
+            questionElement.appendChild(optionsElement);
+            questionContainer.appendChild(questionElement);
+
+            // Update navigation buttons visibility/text
+            document.getElementById('back-btn').style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+            document.getElementById('prev-btn').style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.textContent = currentQuestionIndex === totalQuestions - 1 ? 'Submit' : 'Next';
+
+            updateProgressItems(); // Update progress panel
+        }
+
+        // Centralized function to handle answer changes
+        function handleAnswerChange(questionId, questionType, optionValue, isChecked, optionsContainer, optionElement) {
+             if (questionType === 'radio') {
+                 optionsContainer.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                 optionElement.classList.add('selected');
+                 answers[questionId] = optionValue;
+                 questionsAnswered.add(currentQuestionIndex); // Mark as answered immediately
+             } else if (questionType === 'checkbox') {
+                 optionElement.classList.toggle('selected', isChecked);
+                 if (!answers[questionId]) answers[questionId] = [];
+
+                 if (isChecked) {
+                     if (!answers[questionId].includes(optionValue)) {
+                         answers[questionId].push(optionValue);
+                     }
+                 } else {
+                     answers[questionId] = answers[questionId].filter(v => v !== optionValue);
+                 }
+
+                 // Mark as answered if at least one checkbox is checked
+                 if (answers[questionId].length > 0) {
+                     questionsAnswered.add(currentQuestionIndex);
+                 } else {
+                      // If all checkboxes are deselected, remove from answered set
+                     questionsAnswered.delete(currentQuestionIndex);
+                 }
+             }
+             updateProgressItems(); // Update progress panel after any change
+        }
+
+
+        // Handle next button click
+        function handleNextButton() {
+            const currentQuestionData = flattenedQuestions[currentQuestionIndex];
+
+            // Validate current question before proceeding
+            if (!validateCurrentQuestion(currentQuestionData)) {
+                 return; // Stop if validation fails
+            }
+
+            if (currentQuestionIndex === totalQuestions - 1) {
+                 // Last question: check if all questions are answered before submitting
+                 if (canSubmitAssessment()) {
+                     submitAssessment();
+                 }
+            } else {
+                // Not the last question, move to the next one
+                currentQuestionIndex++;
+                 if (currentQuestionIndex > highestQuestionIndex) {
+                    highestQuestionIndex = currentQuestionIndex; // Update highest reached index
+                 }
+                renderCurrentQuestion();
+                updateProgressBar(); // Update visual progress bar/fill
+            }
+        }
+
+
+        // Check if all questions have been answered
+        function canSubmitAssessment() {
+            if (questionsAnswered.size < totalQuestions) {
+                const unansweredCount = totalQuestions - questionsAnswered.size;
+                alert(`You have ${unansweredCount} unanswered question(s). Please complete all questions before submitting.`);
+                // Optionally, find and navigate to the first unanswered question
+                // findFirstUnansweredAndNavigate();
+                return false;
+            }
+            return true;
+        }
+
+        // Go to previous question
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgressBar();
+            }
+        }
+
+        // Go to previous section (first question of the previous section)
+        function goToPreviousSection() {
+            const currentSecIndex = flattenedQuestions[currentQuestionIndex].sectionIndex;
+            if (currentSecIndex > 0) {
+                 // Find the index of the first question of the previous section
+                const prevSectionFirstQuestionIndex = flattenedQuestions.findIndex(q => q.sectionIndex === currentSecIndex - 1);
+                if (prevSectionFirstQuestionIndex !== -1) {
+                    currentQuestionIndex = prevSectionFirstQuestionIndex;
+                    renderCurrentQuestion();
+                    updateProgressBar();
+                    return; // Exit after successful navigation
+                }
+            }
+            // Fallback to just going to the previous question if already in the first section or something goes wrong
+            goToPreviousQuestion();
+        }
+
+
+        // Validate current question (ensures an answer is selected/checked)
+        function validateCurrentQuestion(currentQuestionData) {
+             const questionId = currentQuestionData.questionId;
+             const questionType = currentQuestionData.question.type;
+
+             if (questionType === 'radio' && !answers[questionId]) {
+                 alert('Please select an answer before proceeding.');
+                 return false;
+             } else if (questionType === 'checkbox' && (!answers[questionId] || answers[questionId].length === 0)) {
+                 alert('Please select at least one option before proceeding.');
+                 return false;
+             }
+             // If validation passes, ensure the question is marked as answered
+             questionsAnswered.add(currentQuestionIndex);
+             updateProgressItems(); // Update progress immediately after validation passes
+             return true;
+        }
+
+
+        // Update progress bar fill percentage
+        function updateProgressBar() {
+            const progress = totalQuestions > 0 ? (questionsAnswered.size / totalQuestions) * 100 : 0;
+            const progressFill = document.querySelector('.vertical-progress-fill');
+            if (progressFill) {
+                progressFill.style.height = `${progress}%`;
+            }
+        }
+
+/**
+ * Calculates score, risk aversion 'A', investor profile, final portfolio allocation,
+ * and displays the results, including a detailed allocation table.
+ */
+
+ function submitAssessment() {
+    console.log("Calculating score, A, and portfolio allocation...");
+
+    // --- 1. Calculate Score & Max Score (Existing Logic) ---
+    let score = 0;
+    let maxPossibleScore = 0;
+    sections.forEach(section => {
+        section.questions.forEach(question => {
+            let questionMaxScore = 0;
+            const questionId = question.id;
+            const userAnswer = answers[questionId];
+
+            if (question.type === 'radio') {
+                const selectedOption = question.options.find(option => option.value === userAnswer);
+                if (selectedOption) score += selectedOption.score;
+                questionMaxScore = Math.max(0, ...question.options.map(o => o.score));
+            } else if (question.type === 'checkbox') {
+                let currentQScore = 0;
+                if (userAnswer && Array.isArray(userAnswer)) {
+                    userAnswer.forEach(val => {
+                        const opt = question.options.find(o => o.value === val);
+                        if (opt) currentQScore += opt.score;
+                    });
+                }
+                score += currentQScore;
+                questionMaxScore = question.options.reduce((sum, o) => sum + Math.max(0, o.score), 0);
+            }
+            maxPossibleScore += questionMaxScore;
+        });
+    });
+    
+    // --- 2. Normalize Score ---
+    const normalizedScore = maxPossibleScore > 0 ? Math.round((score / maxPossibleScore) * 100) : 0;
+
+    // --- 3. Calculate Risk Aversion 'A' ---
+    const A_min = 1;
+    const A_max = 10;
+    let calculatedA = A_max - (normalizedScore / 100) * (A_max - A_min);
+    calculatedA = Math.max(A_min, Math.min(A_max, calculatedA));
+    let formattedA = calculatedA.toFixed(2); // Keep A formatted for display
+
+    // --- 4. Calculate Optimal Allocation for both strategies ---
+    function calculateAllocation(marketType, A) {
+        const { E_rm, sigma_m, R_f, weights_market } = MARKET[marketType];
+        const tangencyVariance = Math.pow(sigma_m, 2);
+        
+        let yStar = 0;
+        if (tangencyVariance > 1e-9 && A > 0) {
+            yStar = (E_rm - R_f) / (A * tangencyVariance);
+        }
+        
+        // Constrain yStar between 0 and 1.5
+        yStar = Math.max(0, Math.min(yStar, 1.5));
+        
+        // Calculate fund weights
+        const fundWeights = {};
+        let totalWeight = 0;
+        
+        for (const fund in weights_market) {
+            const weight = yStar * weights_market[fund];
+            fundWeights[fund] = weight;
+            totalWeight += weight;
+        }
+        
+        // Calculate risk-free allocation
+        const rfAllocation = 1.0 - totalWeight;
+        
+        return {
+            yStar,
+            rfAllocation,
+            fundWeights,
+            totalWeight
+        };
+    }
+
+    // Calculate allocations for both strategies
+    const withShortAllocation = calculateAllocation('WITH_SHORT_SELL', calculatedA);
+    const withoutShortAllocation = calculateAllocation('WITHOUT_SHORT_SELL', calculatedA);
+
+    // --- 5. Determine Investor Type ---
+    let investorType, investorDescription;
+    if (normalizedScore <= 30) {
+        investorType = "Conservative Investor";
+        investorDescription = "You prefer stability and low-risk products. Your primary goal is capital preservation.";
+    } else if (normalizedScore <= 70) {
+        investorType = "Moderate Investor";
+        investorDescription = "You accept moderate risk for balanced returns, seeking a balance between growth and security.";
+    } else {
+        investorType = "Aggressive Investor";
+        investorDescription = "You are willing to take higher risks for potentially higher returns, focusing on maximizing growth.";
+    }
+
+    // --- 6. Hide Questionnaire ---
+    const formElement = document.getElementById('risk-assessment-form');
+    if (formElement) formElement.style.display = 'none';
+    const introElement = document.getElementById('introduction');
+    if (introElement) introElement.style.display = 'none';
+    const stepsElement = document.querySelector('.steps-container');
+    if (stepsElement) stepsElement.style.display = 'none';
+
+    // --- 7. Display Basic Results ---
+    const resultScoreEl = document.getElementById('result-score');
+    if (resultScoreEl) resultScoreEl.textContent = normalizedScore.toFixed(0);
+    const resultAEl = document.getElementById('result-a-value');
+    if (resultAEl) resultAEl.textContent = formattedA;
+    const investorTypeEl = document.getElementById('investor-type');
+    if (investorTypeEl) investorTypeEl.textContent = investorType;
+    const investorDescEl = document.getElementById('investor-description');
+    if (investorDescEl) investorDescEl.textContent = investorDescription;
+
+    // --- 8. Display Portfolio Allocation in a Table (show both WITH and WITHOUT short sell) ---
+    const tableContainer = document.getElementById('portfolio-table-container');
+    if (tableContainer) {
+        tableContainer.innerHTML = '';
+
+        const tableTitle = document.createElement('h4');
+        tableTitle.textContent = 'Recommended Portfolio Allocation (Comparison)';
+        tableTitle.style.color = 'var(--primary-color)';
+        tableTitle.style.marginBottom = '15px';
+        tableContainer.appendChild(tableTitle);
+
+        // merge the two objects to get all fund names
+        const allFunds = Array.from(new Set([
+            ...Object.keys(withShortAllocation.fundWeights),
+            ...Object.keys(withoutShortAllocation.fundWeights)
+        ]));
+
+        // create table
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.fontSize = '0.9rem';
+
+        // table head
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        ['Asset / Fund', 'With Short Sell (%)', 'No Short Sell (%)'].forEach((txt, idx) => {
+            const th = document.createElement('th');
+            th.textContent = txt;
+            th.style.border = '1px solid #ddd';
+            th.style.padding = '8px 12px';
+            th.style.backgroundColor = '#f4f7fa';
+            th.style.textAlign = idx === 0 ? 'left' : 'right';
+            headerRow.appendChild(th);
+        });
+
+        // content
+        const tbody = table.createTBody();
+        let totalWith = 0, totalWithout = 0;
+
+        allFunds.forEach(fund => {
+            const row = tbody.insertRow();
+            const cell1 = row.insertCell();
+            cell1.textContent = fund;
+            cell1.style.border = '1px solid #ddd';
+            cell1.style.padding = '8px 12px';
+
+            const withValue = withShortAllocation.fundWeights[fund] || 0;
+            const withoutValue = withoutShortAllocation.fundWeights[fund] || 0;
+            totalWith += withValue;
+            totalWithout += withoutValue;
+
+            const cell2 = row.insertCell();
+            cell2.textContent = (withValue * 100).toFixed(2) + '%';
+            cell2.style.border = '1px solid #ddd';
+            cell2.style.padding = '8px 12px';
+            cell2.style.textAlign = 'right';
+            if (withValue < 0) cell2.style.color = 'red';
+
+            const cell3 = row.insertCell();
+            cell3.textContent = (withoutValue * 100).toFixed(2) + '%';
+            cell3.style.border = '1px solid #ddd';
+            cell3.style.padding = '8px 12px';
+            cell3.style.textAlign = 'right';
+            if (withoutValue < 0) cell3.style.color = 'red';
+        });
+
+        // Risk-Free Asset 行
+        const rfRow = tbody.insertRow();
+        const rfCell1 = rfRow.insertCell();
+        rfCell1.textContent = 'Risk-Free Asset';
+        rfCell1.style.border = '1px solid #ddd';
+        rfCell1.style.padding = '8px 12px';
+        rfCell1.style.fontWeight = 'bold';
+
+        const rfCell2 = rfRow.insertCell();
+        rfCell2.textContent = (withShortAllocation.rfAllocation * 100).toFixed(2) + '%';
+        rfCell2.style.border = '1px solid #ddd';
+        rfCell2.style.padding = '8px 12px';
+        rfCell2.style.textAlign = 'right';
+        rfCell2.style.fontWeight = 'bold';
+        if (withShortAllocation.rfAllocation < 0) rfCell2.style.color = 'red';
+
+        const rfCell3 = rfRow.insertCell();
+        rfCell3.textContent = (withoutShortAllocation.rfAllocation * 100).toFixed(2) + '%';
+        rfCell3.style.border = '1px solid #ddd';
+        rfCell3.style.padding = '8px 12px';
+        rfCell3.style.textAlign = 'right';
+        rfCell3.style.fontWeight = 'bold';
+        if (withoutShortAllocation.rfAllocation < 0) rfCell3.style.color = 'red';
+
+        // total 行
+        const totalRow = tbody.insertRow();
+        const totalCell1 = totalRow.insertCell();
+        totalCell1.textContent = 'Total';
+        totalCell1.style.fontWeight = 'bold';
+        totalCell1.style.border = '1px solid #ddd';
+        totalCell1.style.padding = '8px 12px';
+
+        const totalCell2 = totalRow.insertCell();
+        totalCell2.textContent = ((totalWith + withShortAllocation.rfAllocation) * 100).toFixed(2) + '%';
+        totalCell2.style.fontWeight = 'bold';
+        totalCell2.style.textAlign = 'right';
+        totalCell2.style.border = '1px solid #ddd';
+        totalCell2.style.padding = '8px 12px';
+
+        const totalCell3 = totalRow.insertCell();
+        totalCell3.textContent = ((totalWithout + withoutShortAllocation.rfAllocation) * 100).toFixed(2) + '%';
+        totalCell3.style.fontWeight = 'bold';
+        totalCell3.style.textAlign = 'right';
+        totalCell3.style.border = '1px solid #ddd';
+        totalCell3.style.padding = '8px 12px';
+
+        tableContainer.appendChild(table);
+    } else {
+        console.error("Error: Could not find element with ID 'portfolio-table-container' to display results table.");
+    }
+
+    // --- 9. Show Results Container ---
+    const resultsContainer = document.getElementById('result-container');
+    if (resultsContainer) {
+        resultsContainer.style.display = 'block'; // Make sure results are visible
+        resultsContainer.classList.add('fade-in');
+    }
+
+    // --- 10. Create the final form data including both allocation strategies ---
+    const formData = {
+        personal: {
+            name: document.getElementById('name')?.value,
+            gender: selectedGender,
+            ageRange: selectedAgeRange,
+            income: selectedIncome
+        },
+        answers: answers,
+        rawScore: score,
+        maxScore: maxPossibleScore,
+        normalizedScore: normalizedScore,
+        riskAversionA: calculatedA,
+        investorType: investorType,
+        investorDescription: investorDescription,
+        portfolioAllocation: {
+            withShortSelling: {
+                riskAssetAllocation_y: withShortAllocation.yStar,
+                riskFreeAllocation: withShortAllocation.rfAllocation,
+                fundWeights: withShortAllocation.fundWeights,
+                totalRiskyWeight: withShortAllocation.totalWeight
+            },
+            withoutShortSelling: {
+                riskAssetAllocation_y: withoutShortAllocation.yStar,
+                riskFreeAllocation: withoutShortAllocation.rfAllocation,
+                fundWeights: withoutShortAllocation.fundWeights,
+                totalRiskyWeight: withoutShortAllocation.totalWeight
+            }
+        }
+    };
+
+    console.log('Final Form Data:', JSON.stringify(formData, null, 2)); // Pretty print JSON
+    
+    // send assessment result to the server
+    fetch('/save-assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Server error');
+        return res.json();
+    })
+    .then(data => {
+        console.log('Saved on server at:', data.path);
+    })
+    .catch(err => {
+        console.error('Failed to save:', err);
+        alert('⚠️ Failed to save! Please try again later.');
+    });
+} // --- End of submitAssessment function ---
+function renderEnhancedResults(formData) {
+      // update Score and A
+      document.getElementById('result-score').textContent = formData.normalizedScore;
+      document.getElementById('result-a-value').textContent = formData.riskAversionA.toFixed(2);
+      const percentA = ((formData.riskAversionA - 1) / 9) * 100;
+      document.getElementById('gaugeFill').style.width = percentA + '%';
+      document.querySelector('.gauge').setAttribute('aria-valuenow', formData.riskAversionA.toFixed(2));
+
+      // update the investor type
+      document.getElementById('investor-type').textContent = formData.investorType;
+      document.getElementById('investor-description').textContent = formData.investorDescription;
+
+      // plot the chart
+      const labels = Object.keys(formData.portfolioAllocation.fundWeights).concat(['Risk-Free Asset']);
+      const weights = Object.values(formData.portfolioAllocation.fundWeights).map(w=>w*100)
+                        .concat(formData.portfolioAllocation.riskFreeAllocation*100);
+      const colors = weights.map(w=> w<0 ? 'rgba(255,99,132,0.7)' : 'rgba(75,192,192,0.7)');
+      new Chart(document.getElementById('portfolioChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels, datasets: [{ data: weights, backgroundColor: colors }] },
+        options: { scales: { y: { ticks: { callback: v=>v.toFixed(0)+'%' } } } }
+      });
+
+      // fill in the chart
+      const tbody = document.getElementById('allocationBody'); tbody.innerHTML = '';
+      let total=0;
+      labels.forEach((label,i) => {
+        const w = weights[i]; total += w;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${label}</td><td style=\"text-align:right\" class=\"${w<0?'negative':''}\">${w.toFixed(2)}%</td>`;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('totalWeight').textContent = total.toFixed(2) + '%';
+
+      // download data
+      document.getElementById('downloadData').onclick = () => {
+        const blob = new Blob([JSON.stringify(formData,null,2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'assessment.json'; a.click();
+        URL.revokeObjectURL(url);
+      };
+      document.getElementById('retake').onclick = () => location.reload();
+    }
+
+    window.addEventListener('DOMContentLoaded', initAssessment);
+
+    </script>
+</body>
+</html>
